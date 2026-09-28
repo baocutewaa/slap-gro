@@ -1,0 +1,51 @@
+# configs/real_data.yaml
+# Mode B — Real Data Replication Configuration
+
+mode: "real_data_replication"
+description: "Replication and benchmarking on supplied real-world warehouse dataset"
+
+paths:
+  data_dir: "data/raw"
+  products_csv: "data/raw/Product.csv"
+  storage_location_csv: "data/raw/Storage_Location.csv"
+  navigation_points_csv: "data/raw/Support_Points_Navigation.csv"
+  customer_orders_csv: "data/raw/Customer_Order.csv"
+  picking_waves_csv: "data/raw/Picking_Wave.csv"
+  random_storage_csv: "data/raw/Random_Storage.csv"
+  class_based_storage_csv: "data/raw/Class_Based_Storage.csv"
+  dedicated_storage_csv: "data/raw/Dedicated_Storage.csv"
+  hybrid_storage_csv: "data/raw/Hybrid_Storage.csv"
+
+reconciliation_rules:
+  filter_extra_storage_locations: true
+  handle_missing_sizes: "impute_median"
+  filter_extra_class_based_skus: true
+  map_unmatched_picking_locations: "nearest_support_point"
+
+sampling:
+  # For fast benchmarking or full replication
+  use_sample: false
+  sample_wave_count: 50
+  random_seed: 42
+
+gro:
+  population_size: 1000
+  iterations: 1000
+  tournament_size: 3
+  crossover_rate: 0.90
+  mutation_rate: 0.08
+  elitism: true
+  random_seed: 42
+
+evaluation:
+  metrics:
+    - "total_travel_distance"
+    - "mean"
+    - "std"
+    - "q1"
+    - "median"
+    - "q3"
+  statistical_tests:
+    - "shapiro_wilk"
+    - "anova"
+    - "tukey_hsd"

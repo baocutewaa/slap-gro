@@ -1,0 +1,69 @@
+# configs/paper_replication.yaml
+# Mode A — Paper Replication Configuration
+
+mode: "paper_replication"
+description: "Replication of the paper methodology using synthetic warehouse and experimental parameters"
+
+warehouse:
+  type: "synthetic"
+  n_storage_units: 847
+  slots_per_unit: 18
+  total_slots: 15246
+  blocks:
+    A:
+      aisles: 7
+      levels: 4
+      slots_per_aisle: 40
+    B:
+      aisles: 9
+      levels: 4
+      slots_per_aisle: 40
+    C:
+      aisles: 9
+      levels: 4
+      slots_per_aisle: 40
+  depot:
+    x: 0.0
+    y: 0.0
+    z: 0.0
+  speed:
+    horizontal: 1.0  # m/s
+    vertical: 0.5    # m/s
+
+products:
+  n_products: 2000
+  abc_skew: [0.20, 0.30, 0.50]  # 20% A items generate 80% demand, etc.
+  demand_distribution: "pareto"
+
+waves:
+  n_waves: 50
+  items_per_wave: 25
+  random_seed: 42
+
+storage_policies:
+  - "random"
+  - "class_based"
+  - "dedicated"
+  - "hybrid"
+
+gro:
+  population_size: 1000
+  iterations: 1000
+  tournament_size: 3
+  crossover_rate: 0.90
+  mutation_rate: 0.08
+  elitism: true
+  random_seed: 42
+
+evaluation:
+  metrics:
+    - "total_travel_distance"
+    - "mean"
+    - "std"
+    - "q1"
+    - "median"
+    - "q3"
+  statistical_tests:
+    - "shapiro_wilk"
+    - "anova"
+    - "tukey_hsd"

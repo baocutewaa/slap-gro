@@ -1,0 +1,281 @@
+# configs/data_contract.yaml
+# SLAP-GRO Data Contract & Schema Specification
+
+version: "1.0.0"
+description: "Data Contract defining data schemas, constraints, and reconciliation between Paper and Real modes"
+
+# ==============================================================================
+# 1. EXPERIMENTAL MODES DEFINITION
+# ==============================================================================
+paper_mode:
+  name: "paper_replication"
+  description: "Paper replication mode using synthetic layout and experimental parameters from literature"
+  n_storage_units: 847
+  slots_per_unit: 18
+  total_storage_slots: 15246
+  levels_per_unit: 4
+  warehouse_structure:
+    block_A:
+      aisles: 7
+      levels: 4
+    block_B:
+      aisles: 9
+      levels: 4
+    block_C:
+      aisles: 9
+      levels: 4
+  depot_coordinates: [0.0, 0.0, 0.0]
+  n_products: 2000
+  n_waves: 50
+  items_per_wave: 25
+  storage_policies:
+    - random
+    - class_based
+    - dedicated
+    - hybrid
+  gro_parameters:
+    population_size: 1000
+    iterations: 1000
+    tournament_size: 3
+    crossover_rate: 0.90
+    mutation_rate: 0.08
+    elitism: true
+
+real_mode:
+  name: "real_data_replication"
+  description: "Replication and evaluation using supplied real-world industrial warehouse dataset"
+  raw_dir: "data/raw"
+  expected_locations_count: 2292
+  expected_products_count: 208
+  expected_orders_count: 122370
+  expected_waves_count: 9707
+  expected_navigation_points_count: 44
+  slots_per_location: 18
+
+# ==============================================================================
+# 2. RAW CSV FILE CONTRACTS
+# ==============================================================================
+datasets:
+  Product:
+    file_path: "data/raw/Product.csv"
+    delimiter: ";"
+    encoding: "utf-8-sig"
+    primary_key: "Reference"
+    expected_rows: 208
+    expected_columns:
+      - name: "Reference"
+        type: "string"
+        nullable: false
+        description: "Unique product SKU identifier"
+      - name: "ABCCOD"
+        type: "categorical"
+        allowed_values: ["A", "B", "C"]
+        nullable: false
+        description: "ABC classification code"
+      - name: "Sector"
+        type: "string"
+        allowed_values: ["PF"]
+        nullable: false
+        description: "Warehouse sector designation"
+
+  Storage_Location:
+    file_path: "data/raw/Storage_Location.csv"
+    delimiter: ","
+    encoding: "utf-8"
+    primary_key: "originalLocation"
+    expected_rows: 2292
+    expected_columns:
+      - name: "originalLocation"
+        type: "string"
+        pattern: "^[A-Z]-\\d{2}-\\d{2}$"
+        nullable: false
+        description: "Standard warehouse location code (e.g. A-14-11)"
+      - name: "position"
+        type: "string"
+        nullable: false
+        description: "Concatenated coordinate string 'x, y, z'"
+      - name: "x"
+        type: "float"
+        min: 86.0
+        max: 666.0
+        nullable: false
+      - name: "y"
+        type: "float"
+        min: 0.0
+        max: 1440.0
+        nullable: false
+      - name: "z"
+        type: "integer"
+        allowed_values: [1, 2, 3, 4]
+        nullable: false
+
+  Support_Points_Navigation:
+    file_path: "data/raw/Support_Points_Navigation.csv"
+    delimiter: ";"
+    encoding: "utf-8-sig"
+    primary_key: "labels"
+    expected_rows: 44
+    expected_columns:
+      - name: "points_specified"
+        type: "string"
+        pattern: "^\\(\\s*[-+]?\\d*\\.?\\d+\\s*,\\s*[-+]?\\d*\\.?\\d+\\s*,\\s*[-+]?\\d*\\.?\\d+\\s*\\)$"
+        nullable: false
+        description: "Navigation waypoint coordinates (x, y, z)"
+      - name: "labels"
+        type: "string"
+        nullable: false
+        description: "Navigation support point ID (LC-xx, CC-xx, RC-xx)"
+
+  Customer_Order:
+    file_path: "data/raw/Customer_Order.csv"
+    delimiter: ";"
+    encoding: "utf-8-sig"
+    primary_key: null  # Transaction table
+    expected_rows: 122370
+    known_issues:
+      missing_sizes: 16  # Exactly 16 records have missing 'Size (US)'
+      duplicate_lines: 2559  # Identical items in orders
+    expected_columns:
+      - name: "codCustomer"
+        type: "string"
+        nullable: false
+      - name: "orderNumber"
+        type: "integer"
+        nullable: false
+      - name: "orderToCollect"
+        type: "integer"
+        nullable: false
+      - name: "Reference"
+        type: "string"
+        foreign_key: "Product.Reference"
+        nullable: false
+      - name: "Size (US)"
+        type: "float"
+        nullable: true  # 16 nulls in raw data
+      - name: "quantity (units)"
+        type: "integer"
+        min: 1
+        nullable: false
+      - name: "creationDate"
+        type: "datetime"
+        format: "%d/%m/%Y %H:%M"
+        nullable: false
+      - name: "waveNumber"
+        type: "integer"
+        nullable: false
+      - name: "operator"
+        type: "string"
+        nullable: false
+
+  Picking_Wave:
+    file_path: "data/raw/Picking_Wave.csv"
+    delimiter: ";"
+    encoding: "utf-8-sig"
+    primary_key: null  # Granularity: unit-pick scan events
+    expected_rows: 215192
+    granularity: "unit_pick"  # Every row has quantityToPick = 1
+    expected_columns:
+      - name: "waveNumber"
+        type: "integer"
+        foreign_key: "Customer_Order.waveNumber"
+        nullable: false
+      - name: "reference"
+        type: "string"
+        foreign_key: "Product.Reference"
+        nullable: false
+      - name: "Size (US)"
+        type: "float"
+        nullable: false
+      - name: "quantityToPick (units)"
+        type: "integer"
+        allowed_values: [1]  # Constant 1 unit per line
+        nullable: false
+      - name: "locations"
+        type: "string"
+        nullable: false
+      - name: "operator"
+        type: "string"
+        nullable: false
+
+  Random_Storage:
+    file_path: "data/raw/Random_Storage.csv"
+    delimiter: ","
+    encoding: "utf-8"
+    primary_key: "originalLocation"
+    expected_rows: 2292
+    location_column: "originalLocation"
+    slot_prefix: "col_"
+    n_slots: 18
+
+  Class_Based_Storage:
+    file_path: "data/raw/Class_Based_Storage.csv"
+    delimiter: ";"
+    encoding: "utf-8-sig"
+    primary_key: "Location"
+    expected_rows: 2341
+    location_column: "Location"
+    category_column: "ABCCOD"
+    slot_prefix: ""
+    n_slots: 18
+
+  Dedicated_Storage:
+    file_path: "data/raw/Dedicated_Storage.csv"
+    delimiter: ";"
+    encoding: "utf-8-sig"
+    primary_key: "Location"
+    expected_rows: 2340
+    location_column: "Location"
+    category_column: "XYZCOD"
+    slot_prefix: ""
+    n_slots: 18
+
+  Hybrid_Storage:
+    file_path: "data/raw/Hybrid_Storage.csv"
+    delimiter: ";"
+    encoding: "utf-8-sig"
+    primary_key: "Location"
+    expected_rows: 2340
+    location_column: "Location"
+    category_column: "XYZCOD"
+    slot_prefix: ""
+    n_slots: 18
+
+# ==============================================================================
+# 3. RECONCILIATION & DISCREPANCIES RULES
+# ==============================================================================
+reconciliation:
+  discrepancies:
+    - id: "DISC-01-STORAGE-UNITS"
+      name: "Storage Units Discrepancy"
+      paper: "847 storage units * 18 slots = 15,246 total capacity"
+      real: "2,292 locations in Storage_Location.csv * 18 slots = 41,256 total capacity"
+      policy: "Do not force equality; keep as two distinct operational modes (paper_mode vs real_mode)."
+
+    - id: "DISC-02-STORAGE-POLICY-LOCATIONS"
+      name: "Storage Policy Location Row Counts"
+      counts:
+        Storage_Location: 2292
+        Random_Storage: 2292
+        Dedicated_Storage: 2340
+        Hybrid_Storage: 2340
+        Class_Based_Storage: 2341
+      extra_locations_analysis:
+        dedicated_hybrid: 48  # Aisle 25 and 26 locations (e.g. E-25-10, F-25-20)
+        class_based: 49       # 48 aisle 25/26 locations plus 'Q-26-20'
+      policy: "When evaluating policies against physical layout, intersect locations with Storage_Location.csv or assign standard coordinates for aisle 25-26."
+
+    - id: "DISC-03-PICKING-WAVES-AND-PRODUCTS"
+      name: "Waves and SKU Scope"
+      paper: "50 synthetic waves * 25 SKU/wave from 2,000 synthetic products"
+      real: "9,707 waves, 122,370 order lines, 215,192 unit picks from 208 products (198 picked in waves)"
+      policy: "Paper mode generates 50 waves from synthetic 2000 SKU catalogue. Real mode uses 9,707 waves (or configurable sample) from Product.csv."
+
+    - id: "DISC-04-CLASS-BASED-EXTRA-SKUS"
+      name: "Class-Based Storage Extra SKUs"
+      description: "Class_Based_Storage.csv contains 317 unique SKUs (208 matching Product.csv + 109 legacy/additional SKUs)."
+      policy: "In real mode execution, filter out slots with SKUs not present in Product.csv or treat them as inactive background inventory."
+
+    - id: "DISC-05-PICKING-WAVE-EXTRA-LOCATIONS"
+      name: "Picking Wave Special Locations"
+      description: "22 locations in Picking_Wave.csv are outside Storage_Location.csv (staging/reception/buffer: RC-01..RC-05, EX-01..EX-11, ZN-COR, and aisle 25-26)."
+      policy: "Map non-storage locations to nearest cross-aisle navigation support points or treat as staging depot picks."
