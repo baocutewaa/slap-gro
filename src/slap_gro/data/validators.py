@@ -301,3 +301,6 @@ def validate_storage_matrix(
         "errors": errors,
         "warnings": warnings,
     }
+
+
+validate_orders = validate_customer_orders

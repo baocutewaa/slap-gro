@@ -1,11 +1,28 @@
 """Unified data loader module for SLAP-GRO datasets."""
 
 from pathlib import Path
-from typing import Literal, Optional
+from typing import Any, List, Literal, Optional, Union
 import pandas as pd
 
+
 from slap_gro.config.loader import get_project_root
-from slap_gro.data.preprocess import clean_string_column
+from slap_gro.data.preprocess import (
+    clean_string_column,
+    normalize_customer_orders,
+    normalize_navigation_points,
+    normalize_picking_waves,
+    normalize_products,
+    normalize_storage_locations,
+    normalize_storage_matrix,
+)
+from slap_gro.data.schemas import (
+    CustomerOrderRecord,
+    NavigationPointRecord,
+    PickingWaveRecord,
+    ProductRecord,
+    StorageLocationRecord,
+    StorageUnitRecord,
+)
 
 
 def _resolve_path(file_path: Path | str) -> Path:
@@ -30,9 +47,13 @@ def _read_csv_robust(file_path: Path | str, sep: Optional[str] = None) -> pd.Dat
     return df
 
 
-def load_products(file_path: str = "data/raw/Product.csv") -> pd.DataFrame:
+def load_products(
+    file_path: str = "data/raw/Product.csv",
+    as_records: bool = False,
+    as_catalog: bool = False,
+) -> Any:
     """
-    Load Product.csv.
+    Load and normalize Product.csv.
 
     Columns:
         Reference: str (SKU ID)
@@ -40,15 +61,22 @@ def load_products(file_path: str = "data/raw/Product.csv") -> pd.DataFrame:
         Sector: str ('PF')
     """
     df = _read_csv_robust(file_path, sep=";")
-    for col in ["Reference", "ABCCOD", "Sector"]:
-        if col in df.columns:
-            df[col] = clean_string_column(df[col])
+    df = normalize_products(df)
+    if as_catalog:
+        from slap_gro.data.product import ProductCatalog
+        return ProductCatalog.from_dataframe(df)
+    if as_records:
+        return ProductRecord.from_dataframe(df)
     return df
 
 
-def load_storage_locations(file_path: str = "data/raw/Storage_Location.csv") -> pd.DataFrame:
+
+def load_storage_locations(
+    file_path: str = "data/raw/Storage_Location.csv",
+    as_records: bool = False,
+) -> Union[pd.DataFrame, List[StorageLocationRecord]]:
     """
-    Load Storage_Location.csv.
+    Load and normalize Storage_Location.csv.
 
     Columns:
         originalLocation: str (e.g., 'A-14-11')
@@ -56,74 +84,89 @@ def load_storage_locations(file_path: str = "data/raw/Storage_Location.csv") -> 
         x: float
         y: float
         z: int (1, 2, 3, 4)
+        block: str (optional parsed)
+        aisle: int (optional parsed)
+        bay: int (optional parsed)
     """
     df = _read_csv_robust(file_path, sep=",")
-    df["originalLocation"] = clean_string_column(df["originalLocation"])
-    df["position"] = clean_string_column(df["position"])
-    df["x"] = pd.to_numeric(df["x"], errors="coerce")
-    df["y"] = pd.to_numeric(df["y"], errors="coerce")
-    df["z"] = pd.to_numeric(df["z"], errors="coerce").astype(int)
+    df = normalize_storage_locations(df)
+    if as_records:
+        return StorageLocationRecord.from_dataframe(df)
     return df
 
 
-def load_navigation_points(file_path: str = "data/raw/Support_Points_Navigation.csv") -> pd.DataFrame:
+def load_navigation_points(
+    file_path: str = "data/raw/Support_Points_Navigation.csv",
+    parse_coordinates: bool = False,
+    as_records: bool = False,
+) -> Union[pd.DataFrame, List[NavigationPointRecord]]:
     """
-    Load Support_Points_Navigation.csv.
+    Load and normalize Support_Points_Navigation.csv.
 
     Columns:
         points_specified: str '(x, y, z)'
         labels: str (e.g. 'LC-01')
+        x, y, z: float parsed coordinates (if parse_coordinates=True)
     """
     df = _read_csv_robust(file_path, sep=";")
-    df["points_specified"] = clean_string_column(df["points_specified"])
-    df["labels"] = clean_string_column(df["labels"])
+    df = normalize_navigation_points(df, parse_coordinates=parse_coordinates)
+    if as_records:
+        return NavigationPointRecord.from_dataframe(df)
     return df
 
 
-def load_customer_orders(
+
+def load_orders(
     file_path: str = "data/raw/Customer_Order.csv",
-    impute_missing_size: bool = True
-) -> pd.DataFrame:
+    impute_missing_size: bool = True,
+    parse_dates: bool = True,
+    as_records: bool = False,
+) -> Union[pd.DataFrame, List[CustomerOrderRecord]]:
     """
-    Load Customer_Order.csv.
+    Load and normalize Customer_Order.csv.
 
     Columns:
         codCustomer, orderNumber, orderToCollect, Reference,
         Size (US), quantity (units), creationDate, waveNumber, operator
     """
     df = _read_csv_robust(file_path, sep=";")
-    for col in ["codCustomer", "Reference", "operator"]:
-        if col in df.columns:
-            df[col] = clean_string_column(df[col])
-
-    if impute_missing_size and "Size (US)" in df.columns:
-        # 16 records have missing size; impute using product median or global median
-        median_size = df["Size (US)"].median()
-        df["Size (US)"] = df["Size (US)"].fillna(median_size)
-
+    df = normalize_customer_orders(
+        df,
+        impute_missing_size=impute_missing_size,
+        parse_dates=parse_dates,
+    )
+    if as_records:
+        return CustomerOrderRecord.from_dataframe(df)
     return df
 
 
-def load_picking_waves(file_path: str = "data/raw/Picking_Wave.csv") -> pd.DataFrame:
+load_customer_orders = load_orders
+
+
+def load_picking_waves(
+    file_path: str = "data/raw/Picking_Wave.csv",
+    as_records: bool = False,
+) -> Union[pd.DataFrame, List[PickingWaveRecord]]:
     """
-    Load Picking_Wave.csv.
+    Load and normalize Picking_Wave.csv.
 
     Columns:
         waveNumber, reference, Size (US), quantityToPick (units), locations, operator
     """
     df = _read_csv_robust(file_path, sep=";")
-    for col in ["reference", "locations", "operator"]:
-        if col in df.columns:
-            df[col] = clean_string_column(df[col])
+    df = normalize_picking_waves(df)
+    if as_records:
+        return PickingWaveRecord.from_dataframe(df)
     return df
 
 
 def load_storage_matrix(
     policy: Literal["random", "class_based", "dedicated", "hybrid"] = "random",
-    file_path: Optional[str] = None
-) -> pd.DataFrame:
+    file_path: Optional[str] = None,
+    as_records: bool = False,
+) -> Union[pd.DataFrame, List[StorageUnitRecord]]:
     """
-    Load storage matrix for the specified policy.
+    Load and normalize storage matrix for the specified policy.
 
     Available policies:
         - 'random' -> Random_Storage.csv (delimiter: ',')
@@ -144,9 +187,8 @@ def load_storage_matrix(
 
     target_path = file_path if file_path else policy_files[key]
     df = _read_csv_robust(target_path)
+    df = normalize_storage_matrix(df, policy=key)
 
-    loc_col = "originalLocation" if "originalLocation" in df.columns else ("Location" if "Location" in df.columns else None)
-    if loc_col:
-        df[loc_col] = clean_string_column(df[loc_col])
-
+    if as_records:
+        return StorageUnitRecord.from_dataframe(df, policy=key)
     return df

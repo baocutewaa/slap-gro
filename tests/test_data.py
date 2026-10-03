@@ -238,3 +238,149 @@ def test_known_discrepancies_reconciliation():
 
     # DISC-07: Picking Wave has 22 non-storage locations
     assert len(pw_locs - sl_locs) == 22
+
+
+# ==============================================================================
+# 5. Phase 4 Normalization & Loader API Tests
+# ==============================================================================
+
+from slap_gro.data.loaders import load_orders
+from slap_gro.data.preprocess import (
+    normalize_customer_orders,
+    normalize_navigation_points,
+    normalize_orders,
+    normalize_picking_waves,
+    normalize_products,
+    normalize_storage_locations,
+    normalize_storage_matrix,
+)
+from slap_gro.data.schemas import (
+    CustomerOrderRecord,
+    NavigationPointRecord,
+    PickingWaveRecord,
+    ProductRecord,
+    StorageLocationRecord,
+    StorageUnitRecord,
+)
+from slap_gro.data.validators import validate_orders
+
+
+def test_load_orders_alias_and_date_parsing():
+    """Verify load_orders API behaves identically to load_customer_orders with parsed datetimes."""
+    df = load_orders()
+    assert len(df) == 122370
+    assert pd.api.types.is_datetime64_any_dtype(df["creationDate"])
+    assert df["creationDate"].isnull().sum() == 0
+    assert validate_orders(df)["valid"] is True
+
+
+def test_load_products_as_records():
+    """Verify load_products(as_records=True) returns list of ProductRecord."""
+    records = load_products(as_records=True)
+    assert len(records) == 208
+    assert all(isinstance(r, ProductRecord) for r in records)
+    sample = records[0]
+    assert isinstance(sample.reference, str)
+    assert sample.abc_class in {"A", "B", "C"}
+    assert sample.sector == "PF"
+
+
+def test_load_storage_locations_as_records():
+    """Verify load_storage_locations(as_records=True) returns list of StorageLocationRecord."""
+    records = load_storage_locations(as_records=True)
+    assert len(records) == 2292
+    assert all(isinstance(r, StorageLocationRecord) for r in records)
+    sample = records[0]
+    assert sample.location_id != ""
+    assert isinstance(sample.x, float)
+    assert isinstance(sample.y, float)
+    assert isinstance(sample.z, int)
+    assert sample.block is not None
+
+
+def test_load_navigation_points_as_records():
+    """Verify load_navigation_points(as_records=True) returns list of NavigationPointRecord."""
+    records = load_navigation_points(as_records=True)
+    assert len(records) == 44
+    assert all(isinstance(r, NavigationPointRecord) for r in records)
+    sample = records[0]
+    assert sample.label.startswith("LC-")
+    assert isinstance(sample.x, float)
+    assert isinstance(sample.y, float)
+    assert isinstance(sample.z, float)
+
+
+def test_load_orders_as_records():
+    """Verify load_orders(as_records=True) returns list of CustomerOrderRecord on a sample."""
+    # Test on a small slice for speed
+    df_sample = load_orders().head(50)
+    records = CustomerOrderRecord.from_dataframe(df_sample)
+    assert len(records) == 50
+    assert all(isinstance(r, CustomerOrderRecord) for r in records)
+    sample = records[0]
+    assert sample.customer_code != ""
+    assert isinstance(sample.order_number, int)
+    assert isinstance(sample.quantity, int)
+
+
+def test_load_storage_matrix_as_records():
+    """Verify load_storage_matrix(as_records=True) returns list of StorageUnitRecord with 18 slots."""
+    records = load_storage_matrix(policy="random", as_records=True)
+    assert len(records) == 2292
+    assert all(isinstance(r, StorageUnitRecord) for r in records)
+    sample = records[0]
+    assert sample.policy == "random"
+    assert len(sample.slots) == 18
+    assert all(s.slot_id in range(1, 19) for s in sample.slots)
+
+
+def test_normalization_functions_isolated():
+    """Unit test normalization functions directly with mock uncleaned data."""
+    # 1. Product
+    raw_prod = pd.DataFrame({
+        "Reference": ["  SKU01  ", "sku02 "],
+        "ABCCOD": [" a ", "b"],
+        "Sector": [" pf", "PF "],
+    })
+    clean_prod = normalize_products(raw_prod)
+    assert clean_prod["Reference"].tolist() == ["SKU01", "sku02"]
+    assert clean_prod["ABCCOD"].tolist() == ["A", "B"]
+    assert clean_prod["Sector"].tolist() == ["PF", "PF"]
+
+    # 2. Storage Location
+    raw_loc = pd.DataFrame({
+        "originalLocation": [" A-14-11 ", "B-02-05"],
+        "position": [" 368, 0, 1 ", "100, 20, 2"],
+        "x": ["368.0", 100],
+        "y": ["0.0", 20],
+        "z": ["1", 2],
+    })
+    clean_loc = normalize_storage_locations(raw_loc)
+    assert clean_loc["x"].tolist() == [368.0, 100.0]
+    assert clean_loc["z"].tolist() == [1, 2]
+    assert clean_loc["block"].tolist() == ["A", "B"]
+    assert clean_loc["aisle"].tolist() == [14, 2]
+    assert clean_loc["bay"].tolist() == [11, 5]
+
+    # 3. Navigation Points
+    raw_nav = pd.DataFrame({
+        "labels": [" LC-01 "],
+        "points_specified": [" (66.0, -29.0, 1.0) "],
+    })
+    clean_nav = normalize_navigation_points(raw_nav, parse_coordinates=True)
+    assert clean_nav["labels"].iloc[0] == "LC-01"
+    assert clean_nav["x"].iloc[0] == 66.0
+    assert clean_nav["y"].iloc[0] == -29.0
+    assert clean_nav["z"].iloc[0] == 1.0
+
+
+    # 4. Storage Matrix
+    raw_mat = pd.DataFrame({
+        "originalLocation": [" A-01-01 "],
+        "slot_1": [" SKU1;10.0 "],
+        "slot_2": [" "],
+    })
+    clean_mat = normalize_storage_matrix(raw_mat)
+    assert clean_mat["originalLocation"].iloc[0] == "A-01-01"
+    assert clean_mat["slot_1"].iloc[0] == "SKU1;10.0"
+    assert clean_mat["slot_2"].iloc[0] == ""
