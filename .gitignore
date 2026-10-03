@@ -5,3 +5,5 @@ __pycache__/
 .env
 venv/
 outputs/
+TECHNICAL_DOCUMENTATION.md
+Plan.md

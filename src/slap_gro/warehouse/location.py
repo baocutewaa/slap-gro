@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 import math
-from typing import Optional, Tuple
+from typing import Any, Optional, Tuple
 
 
 @dataclass(frozen=True)
@@ -39,21 +39,16 @@ class Location:
 
     def distance_to(
         self,
-        other: "Location | Tuple[float, float, float]",
+        other: Any,
         z_weight: float = 1.0,
     ) -> float:
         """
-        Calculate 3D Euclidean distance to another Location or coordinate tuple.
-
-        Args:
-            other: Location instance or (x, y, z) tuple.
-            z_weight: Weight penalty for vertical travel.
-
-        Returns:
-            Euclidean distance in meters.
+        Calculate 3D Euclidean distance to another Location, NavigationPoint, or coordinate tuple.
         """
-        if isinstance(other, Location):
+        if hasattr(other, "x") and hasattr(other, "y") and hasattr(other, "z"):
             ox, oy, oz = other.x, other.y, other.z
+        elif hasattr(other, "coordinates"):
+            ox, oy, oz = other.coordinates
         else:
             ox, oy, oz = other
 
@@ -64,12 +59,14 @@ class Location:
 
     def manhattan_distance_to(
         self,
-        other: "Location | Tuple[float, float, float]",
+        other: Any,
         z_weight: float = 1.0,
     ) -> float:
         """Calculate 3D Manhattan (rectilinear) distance."""
-        if isinstance(other, Location):
+        if hasattr(other, "x") and hasattr(other, "y") and hasattr(other, "z"):
             ox, oy, oz = other.x, other.y, other.z
+        elif hasattr(other, "coordinates"):
+            ox, oy, oz = other.coordinates
         else:
             ox, oy, oz = other
 
