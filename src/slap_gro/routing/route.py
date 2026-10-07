@@ -1,7 +1,8 @@
 """Route modeling, route distance calculation, and picker tour evaluation."""
 
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Any, List, Optional
+
 
 from slap_gro.warehouse.location import Location
 from slap_gro.warehouse.navigation import NavigationPoint
@@ -141,3 +142,35 @@ def evaluate_route(
         stops_count=effective_stops,
         is_closed=is_closed,
     )
+
+
+def evaluate_wave_route(
+    wave: Any,
+    warehouse: Any,
+    method: DistanceMethod = "network",
+    graph: Optional[NavigationGraph] = None,
+    distance_cache: Optional[DistanceCache] = None,
+) -> Route:
+    """
+    Evaluate a picking wave as a closed tour: [depot] + picks + [depot].
+
+    Args:
+        wave: PickingWave entity.
+        warehouse: WarehouseLayout instance.
+        method: Distance calculation mode ('network', 'euclidean', etc.).
+        graph: Optional navigation graph.
+        distance_cache: Optional cache.
+
+    Returns:
+        Evaluated Route entity.
+    """
+    from slap_gro.picking.picking_points import build_wave_tour_sequence
+
+    tour_stops = build_wave_tour_sequence(wave, warehouse)
+    return evaluate_route(
+        route_stops=tour_stops,
+        method=method,
+        graph=graph,
+        distance_cache=distance_cache,
+    )
+

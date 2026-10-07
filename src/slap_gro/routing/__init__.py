@@ -11,6 +11,7 @@ from slap_gro.routing.route import (
     Route,
     build_route,
     evaluate_route,
+    evaluate_wave_route,
     route_distance,
 )
 
@@ -24,4 +25,6 @@ __all__ = [
     "route_distance",
     "build_route",
     "evaluate_route",
+    "evaluate_wave_route",
 ]
+

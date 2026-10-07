@@ -200,3 +200,22 @@ def test_distance_cache():
 
     cache.clear()
     assert len(cache._cache) == 0
+
+
+def test_evaluate_wave_route_integration():
+    """Verify evaluating a PickingWave directly through the routing engine."""
+    from slap_gro.routing.route import evaluate_wave_route
+    from slap_gro.picking.wave import PickingItem, PickingWave
+
+    warehouse = build_warehouse(mode="real")
+    wave = PickingWave(wave_id=101)
+    wave.add_item(PickingItem(reference="SKU_1", quantity=1, location="A-14-11"))
+    wave.add_item(PickingItem(reference="SKU_2", quantity=1, location="A-14-12"))
+    wave.add_item(PickingItem(reference="SKU_3", quantity=1, location="A-14-13"))
+
+    route = evaluate_wave_route(wave, warehouse, method="network")
+    assert isinstance(route, Route)
+    assert route.is_closed is True
+    assert route.stops_count == 3
+    assert route.total_distance > 0.0
+
