@@ -1,5 +1,16 @@
-"""Routing and distance calculation package for SLAP-GRO."""
+"""Routing, distance calculation, and baseline heuristics package for SLAP-GRO."""
 
+from slap_gro.routing.baseline import (
+    BaseRoutingHeuristic,
+    BaselineResult,
+    NearestNeighborBaseline,
+    OriginalCompanyRouteBaseline,
+    ReconstructedFIFOBaseline,
+    SShapeBaseline,
+    evaluate_all_baselines,
+    evaluate_baseline,
+    get_baseline_heuristic,
+)
 from slap_gro.routing.distance import (
     DistanceCache,
     compute_distance_matrix,
@@ -16,6 +27,7 @@ from slap_gro.routing.route import (
 )
 
 __all__ = [
+    # Routing & Graph
     "NavigationGraph",
     "distance",
     "compute_distance_matrix",
@@ -26,5 +38,14 @@ __all__ = [
     "build_route",
     "evaluate_route",
     "evaluate_wave_route",
+    # Baselines (Phase 12)
+    "BaselineResult",
+    "BaseRoutingHeuristic",
+    "OriginalCompanyRouteBaseline",
+    "ReconstructedFIFOBaseline",
+    "NearestNeighborBaseline",
+    "SShapeBaseline",
+    "get_baseline_heuristic",
+    "evaluate_baseline",
+    "evaluate_all_baselines",
 ]
-

@@ -73,6 +73,11 @@ def main():
         help="Output directory to save CSV and JSON experimental results",
     )
     parser.add_argument(
+        "--include-baseline",
+        action="store_true",
+        help="Include Original baseline in evaluation (Phase 12)",
+    )
+    parser.add_argument(
         "--fast",
         action="store_true",
         help="Fast mode: 2 waves, 50 population, 20 iterations for quick verification",
@@ -108,6 +113,7 @@ def main():
         gro_config=gro_cfg,
         config_yaml=args.config,
         output_dir=args.output_dir,
+        include_baseline=args.include_baseline,
         seed=args.seed,
         verbose=True,
     )

@@ -211,6 +211,15 @@ class ExperimentResult:
             })
 
         summary_df = pd.DataFrame(records)
+        # Nếu có baseline 'original', tính thêm % cải thiện của từng policy so với cự ly Original
+        orig_row = summary_df[summary_df["policy"] == "original"]
+        if not orig_row.empty:
+            orig_mean = float(orig_row.iloc[0]["mean"])
+            if orig_mean > 0:
+                summary_df["vs_original_pct"] = summary_df["mean"].apply(
+                    lambda m: round((orig_mean - m) / orig_mean * 100.0, 2)
+                )
+
         summary_df.sort_values(by="mean", inplace=True)
         return summary_df.reset_index(drop=True)
 
@@ -353,6 +362,7 @@ class ExperimentRunner:
         self,
         waves: Sequence[PickingWave],
         max_waves: Optional[int] = None,
+        include_baseline: bool = False,
         verbose: bool = False,
     ) -> ExperimentResult:
         """
@@ -361,6 +371,7 @@ class ExperimentRunner:
         Args:
             waves: Danh sách các đợt nhặt hàng.
             max_waves: Giới hạn số lượng wave cần chạy (hữu ích cho debug hoặc chạy thử nghiệm phân tầng).
+            include_baseline: Nếu True, đánh giá thêm lộ trình cơ sở 'original' (Phase 12) cho mỗi wave.
             verbose: In tiến độ thực hiện ra màn hình.
             
         Returns:
@@ -372,15 +383,46 @@ class ExperimentRunner:
         if max_waves is not None and max_waves > 0:
             target_waves = target_waves[:max_waves]
 
-        total_runs_expected = len(self.policies) * len(target_waves)
+        runs: List[SingleRunResult] = []
+
+        # 1. Đánh giá Baseline 'original' nếu được yêu cầu (Phase 12)
+        if include_baseline:
+            from slap_gro.routing.baseline import evaluate_baseline
+
+            is_real = self.mode == "real_data"
+            for wave in target_waves:
+                base_res = evaluate_baseline(
+                    wave=wave,
+                    warehouse=self.warehouse,
+                    method="original",
+                    is_real_data=is_real,
+                )
+                runs.append(
+                    SingleRunResult(
+                        wave_id=wave.wave_id,
+                        policy_name="original",
+                        initial_distance=base_res.total_distance,
+                        optimized_distance=base_res.total_distance,
+                        improvement_meters=0.0,
+                        improvement_pct=0.0,
+                        execution_time_seconds=base_res.execution_time_seconds,
+                        iterations_run=0,
+                        n_picks=base_res.stops_count,
+                        mode=base_res.baseline_type,
+                        unique_locations=base_res.stops_count,
+                        best_route=base_res.stops,
+                    )
+                )
+
+        total_runs_expected = len(self.policies) * len(target_waves) + (len(target_waves) if include_baseline else 0)
         if verbose:
             print(
                 f"[ExperimentRunner] Bắt đầu thực nghiệm ({self.mode}): "
-                f"{len(self.policies)} policies x {len(target_waves)} waves = {total_runs_expected} runs."
+                f"{len(self.policies)} policies x {len(target_waves)} waves "
+                f"{'+ ' + str(len(target_waves)) + ' baseline runs ' if include_baseline else ''}= {total_runs_expected} runs."
             )
 
-        runs: List[SingleRunResult] = []
-        completed = 0
+        completed = len(runs)
 
         for pol_name, policy in self.policies.items():
             for wave in target_waves:
@@ -398,11 +440,13 @@ class ExperimentRunner:
 
         total_duration = time.perf_counter() - start_time
 
+        all_policies = list(dict.fromkeys([r.policy_name for r in runs]))
+
         return ExperimentResult(
             mode=self.mode,
             runs=runs,
             gro_config=self.gro_config,
-            storage_policies=list(self.policies.keys()),
+            storage_policies=all_policies,
             total_waves=len(target_waves),
             total_execution_time_seconds=total_duration,
         )

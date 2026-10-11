@@ -74,6 +74,7 @@ def run_real_experiment(
     warehouse: Optional[CSVWarehouse] = None,
     wave_dataset: Optional[PickingWaveDataset] = None,
     storage_policies: Optional[Dict[str, StoragePolicy]] = None,
+    include_baseline: bool = False,
     seed: int = 42,
     verbose: bool = True,
 ) -> ExperimentResult:
@@ -198,6 +199,7 @@ def run_real_experiment(
     result = runner.run(
         waves=selected_waves,
         max_waves=len(selected_waves),
+        include_baseline=include_baseline,
         verbose=verbose,
     )
 

@@ -53,6 +53,7 @@ def run_paper_experiment(
     gro_config: Optional[GROConfig] = None,
     config_yaml: Optional[Union[str, Path]] = None,
     output_dir: Optional[Union[str, Path]] = None,
+    include_baseline: bool = False,
     seed: int = 42,
     verbose: bool = True,
 ) -> ExperimentResult:
@@ -65,6 +66,7 @@ def run_paper_experiment(
         gro_config: Cấu hình GRO tùy biến (nếu None sẽ nạp từ paper_replication.yaml).
         config_yaml: Đường dẫn tệp cấu hình YAML thay thế.
         output_dir: Thư mục lưu kết quả (mặc định 'outputs/paper_replication').
+        include_baseline: Đánh giá thêm baseline Original cho mỗi wave (Phase 12).
         seed: Seed tái lập ngẫu nhiên.
         verbose: In tiến trình thực hiện ra màn hình console.
         
@@ -135,6 +137,7 @@ def run_paper_experiment(
     result = runner.run(
         waves=list(wave_dataset.waves.values()),
         max_waves=n_waves,
+        include_baseline=include_baseline,
         verbose=verbose,
     )
 

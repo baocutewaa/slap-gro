@@ -22,6 +22,17 @@ from slap_gro.routing.route import (
     evaluate_wave_route,
     route_distance,
 )
+from slap_gro.routing.baseline import (
+    BaseRoutingHeuristic,
+    BaselineResult,
+    NearestNeighborBaseline,
+    OriginalCompanyRouteBaseline,
+    ReconstructedFIFOBaseline,
+    SShapeBaseline,
+    evaluate_all_baselines,
+    evaluate_baseline,
+    get_baseline_heuristic,
+)
 from slap_gro.storage.base import StoragePolicy
 from slap_gro.storage.class_based import ClassBasedStoragePolicy
 from slap_gro.storage.dedicated_storage import DedicatedStoragePolicy
@@ -115,5 +126,15 @@ __all__ = [
     "run_paper_experiment",
     "build_real_storage_policies",
     "run_real_experiment",
+    # Baseline Routing Engine (Phase 12)
+    "BaselineResult",
+    "BaseRoutingHeuristic",
+    "OriginalCompanyRouteBaseline",
+    "ReconstructedFIFOBaseline",
+    "NearestNeighborBaseline",
+    "SShapeBaseline",
+    "get_baseline_heuristic",
+    "evaluate_baseline",
+    "evaluate_all_baselines",
 ]
 

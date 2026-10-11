@@ -17,7 +17,7 @@ Dự án hiện thực hóa kiến trúc pipeline nghiên cứu 2 chế độ:
 ## 📖 Tài liệu kỹ thuật
 
 Toàn bộ thông tin chi tiết về kiến trúc, cấu trúc module, luồng xử lý và đặc tả API được trình bày tại:
-👉 **[TECHNICAL_DOCUMENTATION.md](file:///c:/Users/Admin/Desktop/NCKH/SLAP%20GRO/slap-gro/TECHNICAL_DOCUMENTATION.md)**
+👉 **[TECHNICAL_DOCUMENTATION.md](slap-gro/TECHNICAL_DOCUMENTATION.md)**
 
 Nội dung tài liệu bao gồm:
 1. **Architecture** – Kiến trúc hệ thống & pipeline 2 chế độ
