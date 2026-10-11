@@ -87,6 +87,16 @@ class PickingWave:
                 locations.append(item.location)
         return locations
 
+    @property
+    def locations(self) -> List[str]:
+        """Alias for unique_locations."""
+        return self.unique_locations
+
+    @property
+    def skus(self) -> Set[str]:
+        """Alias for unique_skus."""
+        return self.unique_skus
+
     def add_item(self, item: PickingItem) -> None:
         """Append a picking instruction to this wave."""
         self.items.append(item)
@@ -155,6 +165,20 @@ class PickingWaveDataset:
     def get(self, wave_id: int, default: Optional[PickingWave] = None) -> Optional[PickingWave]:
         """Safely retrieve a wave by ID."""
         return self.waves.get(int(wave_id), default)
+
+    def get_wave(self, wave_id: int, default: Optional[PickingWave] = None) -> Optional[PickingWave]:
+        """Alias for get(wave_id)."""
+        return self.get(wave_id, default)
+
+    @property
+    def total_waves(self) -> int:
+        """Total number of waves."""
+        return len(self.waves)
+
+    @property
+    def total_items(self) -> int:
+        """Total pick items across all waves."""
+        return sum(len(w.items) for w in self.waves.values())
 
     @property
     def wave_ids(self) -> List[int]:

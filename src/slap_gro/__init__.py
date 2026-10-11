@@ -50,6 +50,16 @@ from slap_gro.gro import (
     tournament_selection,
 )
 
+from slap_gro.pipeline import (
+    ExperimentResult,
+    ExperimentRunner,
+    SingleRunResult,
+    build_paper_storage_policies,
+    build_real_storage_policies,
+    run_paper_experiment,
+    run_real_experiment,
+)
+
 __all__ = [
     # Product Layer (Phase 5)
     "Product",
@@ -97,4 +107,13 @@ __all__ = [
     "pmx_crossover",
     "single_point_crossover_repair",
     "mutate",
+    # Pipeline & Experiments (Phase 11)
+    "SingleRunResult",
+    "ExperimentResult",
+    "ExperimentRunner",
+    "build_paper_storage_policies",
+    "run_paper_experiment",
+    "build_real_storage_policies",
+    "run_real_experiment",
 ]
+

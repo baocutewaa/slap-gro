@@ -164,6 +164,11 @@ class StorageMatrix:
         return set(self._sku_to_locations.keys())
 
     @property
+    def unique_skus(self) -> Set[str]:
+        """Alias for stored_skus."""
+        return self.stored_skus
+
+    @property
     def total_capacity(self) -> int:
         """Total slots across all storage units (e.g. 2292 * 18 = 41,256)."""
         return sum(u.total_slots for u in self.units.values())
