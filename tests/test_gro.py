@@ -1,5 +1,5 @@
 """
-Tests for GRO (Genetic Route Optimization) module - Phase 10.
+Tests for GRO (Genetic Route Optimization) module.
 """
 
 from __future__ import annotations

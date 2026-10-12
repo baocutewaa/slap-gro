@@ -1,5 +1,5 @@
 """
-Baseline Routing Engine for SLAP-GRO (Phase 12).
+Baseline Routing Engine for SLAP-GRO.
 
 Implements standard benchmark routing heuristics and evaluates the original baseline
 route reported in literature and industrial warehouse operations.

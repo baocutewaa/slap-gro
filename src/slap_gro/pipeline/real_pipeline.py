@@ -1,5 +1,5 @@
 """
-Real Dataset Pipeline (Mode B) - Phase 11.
+Real Dataset Pipeline (Mode B).
 
 Executes optimization benchmarks on real-world warehouse dataset:
 - CSV Warehouse with 2,292 locations and 4 vertical levels
@@ -24,7 +24,7 @@ from slap_gro.storage import get_storage_policy
 from slap_gro.storage.base import StoragePolicy
 from slap_gro.warehouse.warehouse_layout import CSVWarehouse
 
-# Predefined stage profiles matching Plan.md Phase 11
+# Predefined stage profiles matching replication setup
 REAL_DATA_STAGES = {
     "stage_1": {"max_waves": 10, "iterations": 100, "desc": "10 waves x 100 iterations"},
     "10x100": {"max_waves": 10, "iterations": 100, "desc": "10 waves x 100 iterations"},
@@ -120,7 +120,7 @@ def run_real_experiment(
 
     if verbose:
         print("=" * 70)
-        print("KHỞI CHẠY THỰC NGHIỆM MODE B: REAL-DATA REPLICATION (PHASE 11)")
+        print("KHỞI CHẠY THỰC NGHIỆM MODE B: REAL-DATA REPLICATION")
         print(f"Giai đoạn thực thi: {staged_desc} (max_waves={max_waves})")
         print("=" * 70)
 

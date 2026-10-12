@@ -1,5 +1,5 @@
 """
-Experiment Runner & Results Container for SLAP-GRO Pipeline (Phase 11).
+Experiment Runner & Results Container for SLAP-GRO Pipeline.
 
 Orchestrates multi-wave, multi-policy optimization experiments, computing
 travel distance improvements across different storage policies under GRO.
@@ -64,7 +64,11 @@ class SingleRunResult:
         iterations: Optional[int] = None,
         num_picks: Optional[int] = None,
     ):
-        self.wave_id = int(wave_id)
+        try:
+            self.wave_id = int(wave_id)
+        except (ValueError, TypeError):
+            self.wave_id = str(wave_id)
+
         self.policy_name = str(policy_name or policy or "")
         self.initial_distance = float(initial_distance)
         opt_dist = (
@@ -223,12 +227,43 @@ class ExperimentResult:
         summary_df.sort_values(by="mean", inplace=True)
         return summary_df.reset_index(drop=True)
 
-    def save_results(self, output_dir: Union[str, Path]) -> Dict[str, Path]:
+    def run_statistical_analysis(
+        self,
+        output_dir: Optional[Union[str, Path]] = None,
+        alpha: float = 0.05,
+    ):
+        """
+        Thực thi quy trình kiểm định thống kê (Shapiro-Wilk, ANOVA, Tukey HSD, Effect Sizes)
+        trên tập kết quả thực nghiệm.
+        """
+        from slap_gro.evaluation.statistics import run_statistical_pipeline
+
+        raw_df = self.to_dataframe()
+        return run_statistical_pipeline(
+            data=raw_df,
+            policy_col="policy_name",
+            value_col="optimized_distance",
+            baseline_policy="original",
+            alpha=alpha,
+            output_dir=output_dir,
+        )
+
+    def save_results(
+        self,
+        output_dir: Union[str, Path],
+        run_stats: bool = True,
+    ) -> Dict[str, Path]:
         """
         Lưu trữ kết quả thực nghiệm ra thư mục outputs:
         - raw_experiment_results.csv
         - summary_statistics.csv
         - experiment_metadata.json
+        Và tự động tạo các bảng kiểm định thống kê:
+        - anova.csv
+        - tukey.csv
+        - normality.csv
+        - effect_sizes.csv
+        - statistical_report.md
         """
         out_path = Path(output_dir)
         out_path.mkdir(parents=True, exist_ok=True)
@@ -267,7 +302,7 @@ class ExperimentResult:
         with open(meta_file, "w", encoding="utf-8") as f:
             json.dump(meta, f, indent=2, ensure_ascii=False)
 
-        return {
+        saved_files = {
             "raw": raw_file,
             "summary": sum_file,
             "metadata": meta_file,
@@ -275,6 +310,17 @@ class ExperimentResult:
             "summary_csv": sum_file,
             "summary_json": meta_file,
         }
+
+        # 4. Tự động chạy và xuất bảng thống kê nếu có >= 2 policies
+        policies_present = set(self.storage_policies) | {r.policy_name for r in self.runs if r.policy_name}
+        if run_stats and len(policies_present) >= 2 and len(self.runs) >= 2:
+            try:
+                stats_res = self.run_statistical_analysis(output_dir=out_path)
+                saved_files.update(stats_res.save_tables(out_path))
+            except Exception:
+                pass
+
+        return saved_files
 
 
 class ExperimentRunner:
@@ -371,7 +417,7 @@ class ExperimentRunner:
         Args:
             waves: Danh sách các đợt nhặt hàng.
             max_waves: Giới hạn số lượng wave cần chạy (hữu ích cho debug hoặc chạy thử nghiệm phân tầng).
-            include_baseline: Nếu True, đánh giá thêm lộ trình cơ sở 'original' (Phase 12) cho mỗi wave.
+            include_baseline: Nếu True, đánh giá thêm lộ trình cơ sở 'original' cho mỗi wave.
             verbose: In tiến độ thực hiện ra màn hình.
             
         Returns:
@@ -385,7 +431,7 @@ class ExperimentRunner:
 
         runs: List[SingleRunResult] = []
 
-        # 1. Đánh giá Baseline 'original' nếu được yêu cầu (Phase 12)
+        # 1. Đánh giá Baseline 'original' nếu được yêu cầu
         if include_baseline:
             from slap_gro.routing.baseline import evaluate_baseline
 

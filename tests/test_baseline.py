@@ -1,5 +1,5 @@
 """
-Unit tests for Baseline Routing Engine (Phase 12).
+Unit tests for Baseline Routing Engine.
 """
 
 import pytest
@@ -178,7 +178,7 @@ class TestBaselineEvaluation:
 
 
 class TestExperimentRunnerBaselineIntegration:
-    """Test ExperimentRunner integration with Phase 12 Baselines."""
+    """Test ExperimentRunner integration with Baseline Routing Heuristics."""
 
     def test_runner_with_include_baseline(self):
         wh = SyntheticWarehouse()

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CLI Script to reproduce full experimental benchmark results (Phase 12 / Milestone 8).
+CLI Script to reproduce full experimental benchmark results (Milestone 8 Benchmark).
 
 Generates the 5-way comparative benchmark reported in literature:
 1. Original (Baseline: actual company route in Mode B, canonical FIFO in Mode A)
@@ -129,6 +129,9 @@ def main():
         )
         print("\n[MODE A] BẢNG SO SÁNH 5 CHIẾN LƯỢC (ORIGINAL VS 4 CHÍNH SÁCH GRO):")
         print(res_paper.summary_statistics().to_string(index=False))
+        # Xuất kiểm định thống kê ra outputs/tables
+        tables_dir = Path("outputs/tables")
+        res_paper.run_statistical_analysis(output_dir=tables_dir)
 
     if args.mode in ("real", "both"):
         print("\n" + "=" * 75)
@@ -146,8 +149,13 @@ def main():
         )
         print("\n[MODE B] BẢNG SO SÁNH 5 CHIẾN LƯỢC (ORIGINAL VS 4 CHÍNH SÁCH GRO):")
         print(res_real.summary_statistics().to_string(index=False))
+        # Xuất kiểm định thống kê ra outputs/tables nếu chưa chạy mode paper
+        if args.mode == "real":
+            tables_dir = Path("outputs/tables")
+            res_real.run_statistical_analysis(output_dir=tables_dir)
 
     print("\nHoàn tất tái lập kết quả! Dữ liệu đã lưu tại:", out_base)
+    print("Các bảng thống kê (ANOVA, Tukey, Summary) đã lưu tại: outputs/tables/")
 
 
 if __name__ == "__main__":

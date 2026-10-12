@@ -1,7 +1,7 @@
 """
 GRO (Genetic Route Optimization) module.
 
-Triển khai đầy đủ thuật toán di truyền tối ưu hóa hành trình nhặt hàng theo Phase 10 của Plan.md.
+Triển khai đầy đủ thuật toán di truyền tối ưu hóa hành trình nhặt hàng theo đặc tả giải thuật GRO.
 """
 
 from slap_gro.gro.chromosome import Chromosome

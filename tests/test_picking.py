@@ -1,4 +1,4 @@
-"""Unit tests for SLAP-GRO Phase 8: Picking Layer & Route Targets."""
+"""Unit tests for SLAP-GRO Picking Layer & Route Targets."""
 
 import pytest
 import pandas as pd
@@ -92,7 +92,7 @@ def test_synthetic_picking_wave_generation():
 
 
 # ==============================================================================
-# 3. Picking Points Extraction for GRO (Phase 8 -> Phase 9 bridge)
+# 3. Picking Points Extraction for GRO (Picking -> Routing bridge)
 # ==============================================================================
 
 def test_picking_points_decoupled_from_skus():

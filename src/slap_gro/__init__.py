@@ -71,12 +71,34 @@ from slap_gro.pipeline import (
     run_real_experiment,
 )
 
+from slap_gro.evaluation import (
+    DistanceMetrics,
+    DistributionSummary,
+    compare_policies_pairwise,
+    compute_confidence_interval,
+    compute_distance_metrics,
+    compute_distribution_summary,
+    compute_improvement,
+    compute_policy_metrics,
+    compute_relative_improvements,
+    evaluate_experiment_run,
+    export_metrics_table,
+    plot_convergence_curve,
+    plot_distance_boxplot,
+    plot_distance_scatter,
+    plot_picking_route_2d,
+    plot_policy_comparison_bar,
+    run_one_way_anova,
+    run_tukey_hsd,
+    test_normality_shapiro,
+)
+
 __all__ = [
-    # Product Layer (Phase 5)
+    # Product Layer
     "Product",
     "ProductCatalog",
     "load_product_catalog",
-    # Storage Matrix & Policies (Phase 6 & 7)
+    # Storage Matrix & Policies
     "StoredItem",
     "StorageUnit",
     "StorageMatrix",
@@ -87,14 +109,14 @@ __all__ = [
     "DedicatedStoragePolicy",
     "HybridStoragePolicy",
     "get_storage_policy",
-    # Picking Layer (Phase 8)
+    # Picking Layer
     "PickingItem",
     "PickingWave",
     "PickingWaveDataset",
     "get_wave_picking_locations",
     "build_gro_route_targets",
     "build_wave_tour_sequence",
-    # Routing Engine (Phase 9)
+    # Routing Engine
     "NavigationGraph",
     "distance",
     "compute_distance_matrix",
@@ -104,7 +126,7 @@ __all__ = [
     "build_route",
     "evaluate_route",
     "evaluate_wave_route",
-    # GRO Optimization Engine (Phase 10)
+    # GRO Optimization Engine
     "Chromosome",
     "FitnessEvaluator",
     "GROConfig",
@@ -118,7 +140,7 @@ __all__ = [
     "pmx_crossover",
     "single_point_crossover_repair",
     "mutate",
-    # Pipeline & Experiments (Phase 11)
+    # Pipeline & Experiments
     "SingleRunResult",
     "ExperimentResult",
     "ExperimentRunner",
@@ -126,7 +148,7 @@ __all__ = [
     "run_paper_experiment",
     "build_real_storage_policies",
     "run_real_experiment",
-    # Baseline Routing Engine (Phase 12)
+    # Baseline Routing Engine
     "BaselineResult",
     "BaseRoutingHeuristic",
     "OriginalCompanyRouteBaseline",
@@ -136,5 +158,26 @@ __all__ = [
     "get_baseline_heuristic",
     "evaluate_baseline",
     "evaluate_all_baselines",
+    # Evaluation Layer
+    "DistanceMetrics",
+    "compute_distance_metrics",
+    "compute_improvement",
+    "compute_policy_metrics",
+    "evaluate_experiment_run",
+    "export_metrics_table",
+    "DistributionSummary",
+    "compute_distribution_summary",
+    "compute_confidence_interval",
+    "compute_relative_improvements",
+    "compare_policies_pairwise",
+    "test_normality_shapiro",
+    "run_one_way_anova",
+    "run_tukey_hsd",
+    "plot_distance_boxplot",
+    "plot_distance_scatter",
+    "plot_policy_comparison_bar",
+    "plot_convergence_curve",
+    "plot_picking_route_2d",
 ]
+
 

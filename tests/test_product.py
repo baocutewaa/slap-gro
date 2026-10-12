@@ -1,4 +1,4 @@
-"""Tests for SLAP-GRO Phase 5: Product Layer."""
+"""Tests for SLAP-GRO Product Layer."""
 
 import pytest
 import pandas as pd

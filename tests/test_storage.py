@@ -1,4 +1,4 @@
-"""Unit tests for SLAP-GRO Phase 6 & Phase 7: Storage Matrix & Storage Policies."""
+"""Unit tests for SLAP-GRO Storage Matrix & Storage Policies."""
 
 import pytest
 import pandas as pd
@@ -20,7 +20,7 @@ from slap_gro.warehouse.warehouse_layout import SyntheticWarehouse, build_wareho
 
 
 # ==============================================================================
-# 1. Phase 6 — Storage Matrix & Slot Parsing Tests
+# 1. Storage Matrix & Slot Parsing Tests
 # ==============================================================================
 
 def test_stored_item_and_parse_slot():
@@ -85,7 +85,7 @@ def test_storage_matrix_from_csv_and_indexing():
 
 
 # ==============================================================================
-# 2. Phase 7 — Storage Policies (Observed Mode)
+# 2. Storage Policies (Observed Mode)
 # ==============================================================================
 
 @pytest.mark.parametrize("policy_name", ["random", "class_based", "dedicated", "hybrid"])
@@ -100,7 +100,7 @@ def test_observed_storage_policies(policy_name):
 
 
 # ==============================================================================
-# 3. Phase 7 — Storage Policies (Generated Mode for Mode A)
+# 3. Storage Policies (Generated Mode for Mode A)
 # ==============================================================================
 
 @pytest.fixture(scope="module")

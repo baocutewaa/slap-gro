@@ -1,5 +1,5 @@
 """
-Pipeline module for SLAP-GRO experiment execution and benchmark runners (Phase 11).
+Pipeline module for SLAP-GRO experiment execution and benchmark runners.
 """
 
 from slap_gro.pipeline.experiment import (

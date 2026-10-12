@@ -1,4 +1,4 @@
-"""Tests for SLAP-GRO Phase 0: Data layer, loaders, schemas, and validators."""
+"""Tests for SLAP-GRO Data layer, loaders, schemas, and validators."""
 
 import pytest
 import pandas as pd
@@ -241,7 +241,7 @@ def test_known_discrepancies_reconciliation():
 
 
 # ==============================================================================
-# 5. Phase 4 Normalization & Loader API Tests
+# 5. Normalization & Loader API Tests
 # ==============================================================================
 
 from slap_gro.data.loaders import load_orders

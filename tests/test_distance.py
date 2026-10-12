@@ -1,4 +1,4 @@
-"""Unit and integration tests for Phase 3: Navigation Layer & Routing Engine."""
+"""Unit and integration tests for Navigation Layer & Routing Engine."""
 
 import math
 import numpy as np

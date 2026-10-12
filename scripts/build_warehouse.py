@@ -1,6 +1,6 @@
 """Build and validate warehouse layouts for both Synthetic (paper) and CSV (real) modes.
 
-Executes Phase 2 warehouse construction, verifies capacity contracts, and
+Executes warehouse construction, verifies capacity contracts, and
 exports layout metadata to outputs/tables/warehouse_summary.csv and
 outputs/warehouse_report.json.
 """
@@ -79,7 +79,7 @@ def main():
     tables_dir.mkdir(parents=True, exist_ok=True)
 
     print("=" * 80)
-    print("SLAP-GRO PHASE 2: WAREHOUSE LAYER CONSTRUCTION")
+    print("SLAP-GRO WAREHOUSE LAYER CONSTRUCTION")
     print("=" * 80)
 
     summaries = []
@@ -131,7 +131,7 @@ def main():
     print(f"[✓] Exported JSON report to: {json_path.relative_to(root)}")
 
     print("\n" + "=" * 80)
-    print("PHASE 2 WAREHOUSE LAYER READY!")
+    print("WAREHOUSE LAYER READY!")
     print("=" * 80)
 
 

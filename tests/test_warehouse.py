@@ -1,4 +1,4 @@
-"""Unit and integration tests for Phase 2: Warehouse Layer."""
+"""Unit and integration tests for Warehouse Layer."""
 
 import math
 import pytest

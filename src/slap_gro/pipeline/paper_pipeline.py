@@ -1,5 +1,5 @@
 """
-Paper Replication Pipeline (Mode A) - Phase 11.
+Paper Replication Pipeline (Mode A).
 
 Replicates the paper's experimental setup:
 - 847 Synthetic Warehouse Units (15,246 slots)
@@ -66,7 +66,7 @@ def run_paper_experiment(
         gro_config: Cấu hình GRO tùy biến (nếu None sẽ nạp từ paper_replication.yaml).
         config_yaml: Đường dẫn tệp cấu hình YAML thay thế.
         output_dir: Thư mục lưu kết quả (mặc định 'outputs/paper_replication').
-        include_baseline: Đánh giá thêm baseline Original cho mỗi wave (Phase 12).
+        include_baseline: Đánh giá thêm baseline Original cho mỗi wave.
         seed: Seed tái lập ngẫu nhiên.
         verbose: In tiến trình thực hiện ra màn hình console.
         
@@ -75,7 +75,7 @@ def run_paper_experiment(
     """
     if verbose:
         print("=" * 70)
-        print("KHỞI CHẠY THỰC NGHIỆM MODE A: PAPER REPLICATION (PHASE 11)")
+        print("KHỞI CHẠY THỰC NGHIỆM MODE A: PAPER REPLICATION")
         print("=" * 70)
 
     # 1. Khởi tạo kho mô phỏng 847 units

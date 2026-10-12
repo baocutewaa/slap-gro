@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CLI Script to execute Real Data Experiment (Mode B) - Phase 11.
+CLI Script to execute Real Data Experiment (Mode B).
 
 Usage:
     # Staged progression:
@@ -26,7 +26,7 @@ from slap_gro.pipeline.real_pipeline import REAL_DATA_STAGES, run_real_experimen
 
 def main():
     parser = argparse.ArgumentParser(
-        description="SLAP-GRO Mode B: Real Data Experiment Runner (Phase 11)",
+        description="SLAP-GRO Mode B: Real Data Experiment Runner",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
@@ -75,7 +75,7 @@ def main():
     parser.add_argument(
         "--include-baseline",
         action="store_true",
-        help="Include Original baseline in evaluation (Phase 12)",
+        help="Include Original baseline in evaluation",
     )
     parser.add_argument(
         "--fast",

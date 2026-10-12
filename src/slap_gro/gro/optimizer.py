@@ -1,7 +1,7 @@
 """
 GRO Optimizer (Genetic Algorithm for Routing Optimization).
 
-Tuân thủ chặt chẽ đặc tả Phase 10 trong Plan.md:
+Tuân thủ chặt chẽ đặc tả giải thuật GRO trong Plan.md:
 - Population = 1000 (mặc định theo paper)
 - Iterations = 1000
 - Tournament size = 3

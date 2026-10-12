@@ -1,5 +1,5 @@
 """
-Unit tests for SLAP-GRO Pipeline & Experiment Runner (Phase 11).
+Unit tests for SLAP-GRO Pipeline & Experiment Runner.
 """
 
 from pathlib import Path

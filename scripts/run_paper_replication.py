@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CLI Script to execute Paper Replication Experiment (Mode A) - Phase 11.
+CLI Script to execute Paper Replication Experiment (Mode A).
 
 Usage:
     python scripts/run_paper_replication.py --waves 50 --items 25 --iterations 1000 --pop 1000
@@ -20,7 +20,7 @@ from slap_gro.pipeline.paper_pipeline import run_paper_experiment
 
 def main():
     parser = argparse.ArgumentParser(
-        description="SLAP-GRO Mode A: Paper Replication Experiment Runner (Phase 11)",
+        description="SLAP-GRO Mode A: Paper Replication Experiment Runner",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
@@ -86,7 +86,7 @@ def main():
     parser.add_argument(
         "--include-baseline",
         action="store_true",
-        help="Include Original baseline in evaluation (Phase 12)",
+        help="Include Original baseline in evaluation",
     )
     parser.add_argument(
         "--fast",

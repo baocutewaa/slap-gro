@@ -23,7 +23,7 @@ def initialize_population(
     Args:
         locations: Danh sách các vị trí nhặt hàng cần ghé thăm.
         population_size: Kích thước quần thể (số lượng cá thể).
-        rng: Bộ sinh số ngẫu nhiên NumPy Generator (tuân thủ Phase 17 reproducibility).
+        rng: Bộ sinh số ngẫu nhiên NumPy Generator (tuân thủ nguyên tắc reproducibility).
         include_canonical: Nếu True, cá thể đầu tiên là thứ tự ban đầu của danh sách;
                            các cá thể còn lại được xáo trộn ngẫu nhiên.
                            

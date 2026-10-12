@@ -111,7 +111,7 @@ def build_notebook_03():
 
     cells = []
     cells.append(create_markdown_cell([
-        "# SLAP-GRO — Phase 6 & 7: Storage Location Assignment Problem (SLAP)",
+        "# SLAP-GRO & 7: Storage Location Assignment Problem (SLAP)",
         "",
         "Notebook này phân tích và trực quan hóa 4 chính sách lưu trữ vị trí hàng hóa trong kho:",
         "1. **Random Storage**: Phân bổ ngẫu nhiên không phân biệt mức độ ưu tiên.",
@@ -317,7 +317,7 @@ def build_notebook_04():
 
     cells = []
     cells.append(create_markdown_cell([
-        "# SLAP-GRO — Phase 8: Picking Wave Layer & Order Batching",
+        "# SLAP-GRO — Picking Wave Layer & Order Batching",
         "",
         "Notebook này phân tích cấu trúc của các đợt nhặt hàng (Picking Waves):",
         "1. Thống kê phân bố 9,707 waves trong tập dữ liệu thực tế (Mode B).",
@@ -476,7 +476,7 @@ def build_notebook_05():
 
     cells = []
     cells.append(create_markdown_cell([
-        "# SLAP-GRO — Phase 9 & 10: Genetic Route Optimization (GRO) Debugging & Visual Demo",
+        "# SLAP-GRO & 10: Genetic Route Optimization (GRO) Debugging & Visual Demo",
         "",
         "Notebook này trình diễn và gỡ lỗi quy trình tối ưu hóa hành trình bằng thuật toán di truyền GRO:",
         "1. **Baseline Route**: Đánh giá lộ trình ban đầu trước khi tối ưu (quãng đường chưa sắp xếp).",
