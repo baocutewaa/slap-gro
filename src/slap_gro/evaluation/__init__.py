@@ -42,7 +42,11 @@ from slap_gro.evaluation.visualization import (
     plot_picking_route_2d,
     plot_policy_comparison_bar,
     plot_residuals_diagnostics,
+    plot_route_wave,
+    plot_storage_policy_layout,
     plot_tukey_hsd_forest,
+    plot_warehouse_3d,
+    generate_all_phase15_figures,
 )
 
 __all__ = [
@@ -79,4 +83,8 @@ __all__ = [
     "plot_tukey_hsd_forest",
     "plot_effect_sizes_bar",
     "plot_residuals_diagnostics",
+    "plot_warehouse_3d",
+    "plot_storage_policy_layout",
+    "plot_route_wave",
+    "generate_all_phase15_figures",
 ]

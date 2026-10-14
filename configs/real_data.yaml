@@ -3,6 +3,7 @@
 
 mode: "real_data_replication"
 description: "Replication and benchmarking on supplied real-world warehouse dataset"
+seed: 42
 
 paths:
   data_dir: "data/raw"

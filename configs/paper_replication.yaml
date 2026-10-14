@@ -3,6 +3,7 @@
 
 mode: "paper_replication"
 description: "Replication of the paper methodology using synthetic warehouse and experimental parameters"
+seed: 42
 
 warehouse:
   type: "synthetic"

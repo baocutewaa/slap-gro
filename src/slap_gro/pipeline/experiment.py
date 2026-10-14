@@ -302,6 +302,74 @@ class ExperimentResult:
         with open(meta_file, "w", encoding="utf-8") as f:
             json.dump(meta, f, indent=2, ensure_ascii=False)
 
+        # 4. Phase 17 Structured Experiment Logs (Plan.md Section 22):
+        # outputs/logs/
+        # Mỗi experiment log cần lưu:
+        # {
+        #   "seed": 42,
+        #   "population_size": 1000,
+        #   "generations": 1000,
+        #   "tournament_size": 3,
+        #   "crossover_probability": 0.9,
+        #   "mutation_probability": 0.08,
+        #   "storage_policy": "hybrid"
+        # }
+        log_dirs = [out_path / "logs", Path("outputs/logs")]
+        for ld in log_dirs:
+            ld.mkdir(parents=True, exist_ok=True)
+            policies_to_log = self.storage_policies if self.storage_policies else ["hybrid"]
+            for pol in policies_to_log:
+                log_data = {
+                    "seed": self.gro_config.random_seed,
+                    "population_size": self.gro_config.population_size,
+                    "generations": self.gro_config.iterations,
+                    "tournament_size": self.gro_config.tournament_size,
+                    "crossover_probability": self.gro_config.crossover_rate,
+                    "mutation_probability": self.gro_config.mutation_rate,
+                    "storage_policy": pol,
+                }
+                log_file = ld / f"experiment_log_{pol}.json"
+                with open(log_file, "w", encoding="utf-8") as f:
+                    json.dump(log_data, f, indent=2, ensure_ascii=False)
+
+        # 5. Phase 17 Routes Export: outputs/routes/
+        route_dirs = [out_path / "routes", Path("outputs/routes")]
+        for rd in route_dirs:
+            rd.mkdir(parents=True, exist_ok=True)
+            for r in self.runs:
+                if r.best_route:
+                    route_info = {
+                        "wave_id": r.wave_id,
+                        "policy_name": r.policy_name,
+                        "initial_distance": r.initial_distance,
+                        "optimized_distance": r.optimized_distance,
+                        "improvement_pct": r.improvement_pct,
+                        "best_route": r.best_route,
+                    }
+                    r_file = rd / f"route_{r.policy_name}_wave_{r.wave_id}.json"
+                    with open(r_file, "w", encoding="utf-8") as f:
+                        json.dump(route_info, f, indent=2, ensure_ascii=False)
+
+        # 6. Ensure outputs/tables has summary_statistics.csv, anova.csv, tukey.csv
+        tables_dir = Path("outputs/tables")
+        tables_dir.mkdir(parents=True, exist_ok=True)
+        sum_df.to_csv(tables_dir / "summary_statistics.csv", index=False)
+
+        # 7. Ensure outputs/figures short aliases exist (warehouse.png, boxplot.png, scatter.png)
+        figures_dir = Path("outputs/figures")
+        if figures_dir.exists():
+            import shutil
+            aliases = {
+                "warehouse_3d.png": "warehouse.png",
+                "distance_boxplot.png": "boxplot.png",
+                "distance_scatter.png": "scatter.png",
+            }
+            for src_name, dst_name in aliases.items():
+                src_path = figures_dir / src_name
+                dst_path = figures_dir / dst_name
+                if src_path.exists() and not dst_path.exists():
+                    shutil.copy2(src_path, dst_path)
+
         saved_files = {
             "raw": raw_file,
             "summary": sum_file,
@@ -311,12 +379,14 @@ class ExperimentResult:
             "summary_json": meta_file,
         }
 
-        # 4. Tự động chạy và xuất bảng thống kê nếu có >= 2 policies
+        # 8. Tự động chạy và xuất bảng thống kê nếu có >= 2 policies
         policies_present = set(self.storage_policies) | {r.policy_name for r in self.runs if r.policy_name}
         if run_stats and len(policies_present) >= 2 and len(self.runs) >= 2:
             try:
                 stats_res = self.run_statistical_analysis(output_dir=out_path)
                 saved_files.update(stats_res.save_tables(out_path))
+                # Sync tables to outputs/tables as required by Phase 17
+                stats_res.save_tables(tables_dir)
             except Exception:
                 pass
 
